@@ -173,39 +173,46 @@ void schedule(vector<int> rank_index_sorted) {
 int main(int argc, char *argv[]) {
     initializeData();
 
-    cout << "No. of tasks:" << job_count << endl;
-    cout << "No. of processors:" << processor_count << endl;
-    cout << "\nThe upward rank values:" << endl;
+    cout << "No. of tasks: " << job_count << endl;
+    cout << "No. of processors: " << processor_count << endl;
 
     computationAvgCalculate();
-
     for (int i = 0; i < job_count; i++) {
         jobs[i].rank = rankCalculate(i);
-        cout << "Task " << i + 1 << ": " <<  fixed << setprecision(6) << jobs[i].rank << endl;
     }
 
     vector<int> rank_index_sorted = sortRank();
-    cout << "\nThe order of tasks to be scheduled:" << endl;
-    for (int i = 0; i < job_count; i++) {
-        cout << rank_index_sorted[i] + 1 << " ";
-    }
-
     schedule(rank_index_sorted);
 
-    cout << "\n\nEST and EFT on different processors" << endl;
-    for (int i = 0; i < job_count; i++) {
-        cout << "Task: " << i + 1 << endl;
-        for (int j = 0; j < processor_count; j++) {
-            cout << "processor " << j + 1 << "||est: " << jobs[i].processors[j].est << " eft: " << jobs[i].processors[j].eft << " ||" << endl;
-        }
-        cout << endl;
-    }
-    
     cout << "\nFinal Schedule:" << endl;
     for (int i = 0; i < job_count; i++) {
-        cout << "Task " << i + 1 << " is executed on processor " << jobs[i].processor_exec + 1 << " from time " << jobs[i].st << " to " << jobs[i].ft << endl;
+        cout << "Task: " << i + 1;
+        cout << "\t| rank: " <<  fixed << setprecision(2) << jobs[i].rank;
+        cout << "\t| EST: ";
+        for (int j = 0; j < processor_count; j++) {
+            if (jobs[i].processors[j].est == jobs[i].st) {
+                cout << "\033[1;31m" + std::to_string(jobs[i].processors[j].est) + "\033[0m";
+            } else {
+                cout << jobs[i].processors[j].est;
+            }
+            cout << ", ";
+        }
+        cout << "\t| EFT: ";
+        for (int j = 0; j < processor_count; j++) {
+            if (jobs[i].processors[j].eft == jobs[i].ft) {
+                cout << "\033[1;31m" + std::to_string(jobs[i].processors[j].eft) + "\033[0m";
+            } else {
+                cout << jobs[i].processors[j].eft;
+            }
+            cout << ", ";
+        }
+
+        cout << "\t| selected processor " << jobs[i].processor_exec + 1
+             << " from time " << jobs[i].st
+             << " to " << jobs[i].ft
+             << endl;
     }
-    
+
     int schedule_length; // schedule length has to be calculated since a job with higher upper rank can finish after the lowest rank job
     schedule_length = jobs[max_element(jobs.begin(), jobs.end(), [](Job &a, Job &b) -> bool {
         return a.ft < b.ft;
